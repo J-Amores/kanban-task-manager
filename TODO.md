@@ -6,9 +6,9 @@
 - [x] Set up Prisma with SQLite
 - [x] Create database schema
 - [x] Migrate initial data
-- [ ] Set up TanStack Query for data fetching
-- [ ] Configure Shadcn UI components
-- [ ] Implement theme system with next-themes
+- [x] Set up TanStack Query for data fetching
+- [x] Configure Shadcn UI components
+- [x] Implement theme system with next-themes
 
 ## 2. Layout & Navigation 🏗️
 
@@ -30,50 +30,50 @@
 
 ## 4. Column Management 📊
 
-- [ ] Create column component
-- [ ] Implement column creation form
-- [ ] Add column editing functionality
-- [ ] Create column deletion with confirmation
-- [ ] Implement column position management
-- [ ] Add column header with task count
+- [x] Create column component
+- [x] Implement column creation form
+- [x] Add column editing functionality
+- [x] Create column deletion with confirmation
+- [x] Implement column position management
+- [x] Add column header with task count
 
 ## 5. Task Management ✅
 
-- [ ] Create task card component
+- [x] Create task card component
 - [ ] Implement task creation form
-- [ ] Add task editing functionality
-- [ ] Create task deletion with confirmation
-- [ ] Implement task details modal
+- [x] Add task editing functionality
+- [x] Create task deletion with confirmation
+- [x] Implement task details modal
 - [ ] Add task movement between columns
 - [ ] Create task position management
 - [ ] Implement drag and drop functionality
 
 ## 6. Subtask System 📝
 
-- [ ] Create subtask component
+- [x] Create subtask component
 - [ ] Implement subtask creation in task form
-- [ ] Add subtask completion toggle
-- [ ] Create subtask editing functionality
-- [ ] Implement subtask deletion
-- [ ] Add subtask progress tracking
+- [x] Add subtask completion toggle
+- [x] Create subtask editing functionality
+- [x] Implement subtask deletion
+- [x] Add subtask progress tracking
 
 ## 7. State Management & Data Flow 🔄
 
-- [ ] Set up React Query hooks for boards
-- [ ] Create hooks for columns
-- [ ] Implement task data hooks
-- [ ] Add subtask state management
-- [ ] Implement optimistic updates
-- [ ] Add proper error handling
-- [ ] Create loading states
+- [x] Set up React Query hooks for boards
+- [x] Create hooks for columns
+- [x] Implement task data hooks
+- [x] Add subtask state management
+- [x] Implement optimistic updates
+- [x] Add proper error handling
+- [x] Create loading states
 
 ## 8. UI/UX Enhancements 🎨
 
-- [ ] Implement light/dark theme styles
-- [ ] Add loading skeletons
-- [ ] Create transition animations
-- [ ] Implement toast notifications
-- [ ] Add hover states and interactions
+- [x] Implement light/dark theme styles
+- [x] Add loading skeletons
+- [x] Create transition animations
+- [x] Implement toast notifications
+- [x] Add hover states and interactions
 - [ ] Create empty states for lists
 
 ## 9. Accessibility 🌐

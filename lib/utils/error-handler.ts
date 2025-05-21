@@ -11,9 +11,8 @@ export function handleError(error: unknown) {
   // Handle ApiError
   if (error && typeof error === 'object' && 'message' in error) {
     toast({
-      title: 'Error',
-      description: error.message as string,
-      variant: 'destructive',
+      variant: "destructive", 
+      description: (error as ApiError).message
     });
     return;
   }
