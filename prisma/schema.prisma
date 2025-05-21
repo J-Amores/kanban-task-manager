@@ -1,0 +1,62 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:../data/kanban.db"
+}
+
+model Board {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?
+  is_active   Boolean  @default(true)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  columns     Column[]
+
+  @@map("boards")
+}
+
+model Column {
+  id         Int      @id @default(autoincrement())
+  board_id   Int
+  name       String
+  position   Int
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  board      Board    @relation(fields: [board_id], references: [id], onDelete: Cascade)
+  tasks      Task[]
+
+  @@map("columns")
+}
+
+model Task {
+  id          Int       @id @default(autoincrement())
+  column_id   Int
+  title       String
+  description String?
+  position    Int
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+  column      Column    @relation(fields: [column_id], references: [id], onDelete: Cascade)
+  subtasks    Subtask[]
+
+  @@map("tasks")
+}
+
+model Subtask {
+  id          Int      @id @default(autoincrement())
+  task_id     Int
+  title       String
+  is_completed Boolean @default(false)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  task        Task     @relation(fields: [task_id], references: [id], onDelete: Cascade)
+
+  @@map("subtasks")
+}
