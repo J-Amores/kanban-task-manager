@@ -1,229 +1,119 @@
 "use client"
 
 import { useState } from "react"
-import { Plus } from "lucide-react"
+import { MoreVertical, Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { TaskCard } from "@/components/task-card"
-import { TaskDetailsDialog } from "@/components/task-details-dialog"
-
-// Mock data for columns and tasks
-const boardData = {
-  columns: [
-    {
-      id: "1",
-      name: "TODO",
-      tasks: [
-        {
-          id: "1",
-          title: "Build UI for onboarding flow",
-          description: "",
-          subtasks: [
-            { id: "1", title: "Sign up page", completed: true },
-            { id: "2", title: "Sign in page", completed: false },
-            { id: "3", title: "Welcome page", completed: false },
-          ],
-        },
-        {
-          id: "2",
-          title: "Build UI for search",
-          description: "",
-          subtasks: [{ id: "1", title: "Search page", completed: false }],
-        },
-        {
-          id: "3",
-          title: "Build settings UI",
-          description: "",
-          subtasks: [
-            { id: "1", title: "Account page", completed: false },
-            { id: "2", title: "Billing page", completed: false },
-          ],
-        },
-        {
-          id: "4",
-          title: "QA and test all major user journeys",
-          description:
-            "Once we feel version one is ready, we need to rigorously test it both internally and externally to identify any major gaps.",
-          subtasks: [
-            { id: "1", title: "Internal testing", completed: false },
-            { id: "2", title: "External testing", completed: false },
-          ],
-        },
-      ],
-    },
-    {
-      id: "2",
-      name: "DOING",
-      tasks: [
-        {
-          id: "5",
-          title: "Design settings and search pages",
-          description: "",
-          subtasks: [
-            { id: "1", title: "Settings - Account page", completed: true },
-            { id: "2", title: "Settings - Billing page", completed: true },
-            { id: "3", title: "Search page", completed: false },
-          ],
-        },
-        {
-          id: "6",
-          title: "Add account management endpoints",
-          description: "",
-          subtasks: [
-            { id: "1", title: "Upgrade plan", completed: true },
-            { id: "2", title: "Cancel plan", completed: true },
-            { id: "3", title: "Update payment method", completed: false },
-          ],
-        },
-        {
-          id: "7",
-          title: "Design onboarding flow",
-          description: "",
-          subtasks: [
-            { id: "1", title: "Sign up page", completed: true },
-            { id: "2", title: "Sign in page", completed: false },
-            { id: "3", title: "Welcome page", completed: false },
-          ],
-        },
-        {
-          id: "8",
-          title: "Add search endpoints",
-          description: "",
-          subtasks: [
-            { id: "1", title: "Add search endpoint", completed: true },
-            { id: "2", title: "Define search filters", completed: false },
-          ],
-        },
-        {
-          id: "9",
-          title: "Add authentication endpoints",
-          description: "",
-          subtasks: [
-            { id: "1", title: "Define user model", completed: true },
-            { id: "2", title: "Add auth endpoints", completed: false },
-          ],
-        },
-        {
-          id: "10",
-          title: "Research pricing points of various competitors and trial different business models",
-          description:
-            "We know what we're planning to build for version one. Now we need to finalise the first pricing model we'll use. Keep iterating the subtasks until we have a coherent proposition.",
-          subtasks: [
-            { id: "1", title: "Research competitor pricing and business models", completed: true },
-            { id: "2", title: "Outline our business model", completed: true },
-            {
-              id: "3",
-              title: "Talk to potential customers about our proposed solution and ask for fair price expectancy",
-              completed: false,
-            },
-          ],
-        },
-      ],
-    },
-    {
-      id: "3",
-      name: "DONE",
-      tasks: [
-        {
-          id: "11",
-          title: "Conduct 5 wireframe tests",
-          description: "Ensure the layout continues to make sense and we have strong buy-in from potential users.",
-          subtasks: [{ id: "1", title: "Complete 5 wireframe prototype tests", completed: true }],
-        },
-        {
-          id: "12",
-          title: "Create wireframe prototype",
-          description: "Create a greyscale clickable wireframe prototype to test our assumptions so far.",
-          subtasks: [{ id: "1", title: "Create clickable wireframe prototype in Balsamiq", completed: true }],
-        },
-        {
-          id: "13",
-          title: "Review results of usability tests and iterate",
-          description: "Keep iterating through the subtasks until we're clear on what we're building.",
-          subtasks: [
-            { id: "1", title: "Meet to review usability test results", completed: true },
-            { id: "2", title: "Make changes to paper prototypes", completed: true },
-            { id: "3", title: "Conduct 5 usability tests", completed: true },
-          ],
-        },
-        {
-          id: "14",
-          title: "Create paper prototypes and conduct 10 usability tests with potential customers",
-          description: "",
-          subtasks: [
-            { id: "1", title: "Create paper prototypes for version one", completed: true },
-            { id: "2", title: "Complete 10 usability tests", completed: true },
-          ],
-        },
-        {
-          id: "15",
-          title: "Market discovery",
-          description:
-            "We need to define and refine our core product. Interviews will help us learn common pain points and help us define the strongest MVP.",
-          subtasks: [{ id: "1", title: "Interview 10 prospective customers", completed: true }],
-        },
-        {
-          id: "16",
-          title: "Competitor analysis",
-          description: "",
-          subtasks: [
-            { id: "1", title: "Find direct and indirect competitors", completed: true },
-            { id: "2", title: "SWOT analysis for each competitor", completed: true },
-          ],
-        },
-        {
-          id: "17",
-          title: "Research the market",
-          description:
-            "We need to get a solid overview of the market to ensure we have up-to-date estimates of market size and demand.",
-          subtasks: [
-            { id: "1", title: "Write up research analysis", completed: true },
-            { id: "2", title: "Calculate TAM", completed: true },
-          ],
-        },
-      ],
-    },
-  ],
-}
+import { Input } from "@/components/ui/input"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { useColumns, useCreateColumn, useUpdateColumn, useDeleteColumn } from "@/hooks/queries/use-columns"
 
 interface BoardViewProps {
-  boardId: string
+  boardId: string;
 }
 
 export function BoardView({ boardId }: BoardViewProps) {
-  const [selectedTask, setSelectedTask] = useState<any | null>(null)
+  const [editingColumn, setEditingColumn] = useState<string | null>(null);
+  const { data: columns, isLoading } = useColumns(boardId);
+  const createColumn = useCreateColumn();
+  const updateColumn = useUpdateColumn();
+  const deleteColumn = useDeleteColumn();
+
+  const handleCreateColumn = () => {
+    createColumn.mutate({
+      name: 'New Column',
+      boardId,
+      position: columns?.length || 0
+    });
+  };
+
+  if (isLoading) {
+    return (
+      <div className="h-full p-4 flex items-center justify-center">
+        <p className="text-muted-foreground">Loading columns...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="h-full p-4">
       <div className="flex h-full space-x-4 overflow-x-auto pb-4">
-        {boardData.columns.map((column) => (
+        {columns?.map((column) => (
           <div key={column.id} className="kanban-column flex flex-col">
-            <div className="mb-4 flex items-center">
-              <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">
-                {column.name} ({column.tasks.length})
-              </h3>
+            <div className="mb-4 flex items-center justify-between w-full pr-2">
+              {editingColumn === column.id ? (
+                <form
+                  className="flex-1 mr-2"
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    const form = e.target as HTMLFormElement;
+                    const input = form.elements.namedItem('name') as HTMLInputElement;
+                    updateColumn.mutate(
+                      { id: column.id, name: input.value },
+                      { onSuccess: () => setEditingColumn(null) }
+                    );
+                  }}
+                >
+                  <Input
+                    name="name"
+                    defaultValue={column.name}
+                    className="h-7 py-1"
+                    onBlur={() => setEditingColumn(null)}
+                    autoFocus
+                  />
+                </form>
+              ) : (
+                <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">
+                  {column.name} (0)
+                </h3>
+              )}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    className="h-8 w-8 p-0"
+                  >
+                    <MoreVertical className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem
+                    onClick={() => setEditingColumn(column.id)}
+                  >
+                    Rename
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    className="text-destructive"
+                    onClick={() => deleteColumn.mutate(column.id)}
+                  >
+                    Delete
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
             <div className="flex-1 space-y-3 overflow-y-auto">
-              {column.tasks.map((task) => (
-                <TaskCard key={task.id} task={task} onClick={() => setSelectedTask(task)} />
-              ))}
+              {/* Task list will be implemented when we add task functionality */}
             </div>
           </div>
         ))}
         <div className="kanban-column flex flex-col items-center justify-center bg-secondary/50 rounded-lg border border-dashed">
-          <Button variant="ghost" className="text-lg font-medium">
+          <Button 
+            variant="ghost" 
+            className="text-lg font-medium"
+            onClick={handleCreateColumn}
+            disabled={createColumn.isPending}
+          >
             <Plus className="mr-2 h-5 w-5" />
             New Column
           </Button>
         </div>
       </div>
 
-      {selectedTask && (
-        <TaskDetailsDialog
-          task={selectedTask}
-          open={!!selectedTask}
-          onOpenChange={(open) => !open && setSelectedTask(null)}
-        />
-      )}
+
     </div>
   )
 }
