@@ -43,6 +43,7 @@ next-env.d.ts
 
 # Development tools
 .windsurf/
+.windsurf-rules
 .idea/
 .vscode/
 *.swp
