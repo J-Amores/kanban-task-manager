@@ -11,6 +11,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { useColumns, useCreateColumn, useUpdateColumn, useDeleteColumn } from "@/hooks/queries/use-columns"
+import { useTasks } from "@/hooks/queries/use-tasks"
+import { TaskCard } from "@/components/task-card"
+import { TaskDetailsDialog } from "@/components/task-details-dialog"
+import { CreateTaskDialog } from "@/components/create-task-dialog"
+import { Task } from "@/hooks/queries/use-tasks"
 
 interface BoardViewProps {
   boardId: string;
@@ -18,6 +23,8 @@ interface BoardViewProps {
 
 export function BoardView({ boardId }: BoardViewProps) {
   const [editingColumn, setEditingColumn] = useState<string | null>(null);
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [creatingTaskInColumn, setCreatingTaskInColumn] = useState<string | null>(null);
   const { data: columns, isLoading } = useColumns(boardId);
   const createColumn = useCreateColumn();
   const updateColumn = useUpdateColumn();
@@ -95,8 +102,19 @@ export function BoardView({ boardId }: BoardViewProps) {
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
-            <div className="flex-1 space-y-3 overflow-y-auto">
-              {/* Task list will be implemented when we add task functionality */}
+            <div className="flex-1 space-y-3 overflow-y-auto p-2">
+              <TaskList
+                columnId={column.id}
+                onTaskClick={setSelectedTask}
+              />
+              <Button
+                variant="ghost"
+                className="w-full justify-start text-muted-foreground hover:text-foreground"
+                onClick={() => setCreatingTaskInColumn(column.id)}
+              >
+                <Plus className="mr-2 h-4 w-4" />
+                Add Task
+              </Button>
             </div>
           </div>
         ))}
@@ -113,7 +131,51 @@ export function BoardView({ boardId }: BoardViewProps) {
         </div>
       </div>
 
+      {selectedTask && (
+        <TaskDetailsDialog
+          task={selectedTask}
+          columnId={selectedTask.columnId}
+          open={!!selectedTask}
+          onOpenChange={(open) => !open && setSelectedTask(null)}
+        />
+      )}
 
+      {creatingTaskInColumn && (
+        <CreateTaskDialog
+          columnId={creatingTaskInColumn}
+          open={!!creatingTaskInColumn}
+          onOpenChange={(open) => !open && setCreatingTaskInColumn(null)}
+        />
+      )}
     </div>
   )
+}
+
+function TaskList({ columnId, onTaskClick }: { columnId: string; onTaskClick: (task: Task) => void }) {
+  const { data: tasks, isLoading } = useTasks(columnId);
+
+  if (isLoading) {
+    return (
+      <div className="space-y-2">
+        <div className="h-[72px] rounded-md bg-secondary/50 animate-pulse" />
+        <div className="h-[72px] rounded-md bg-secondary/50 animate-pulse" />
+      </div>
+    );
+  }
+
+  if (!tasks?.length) {
+    return null;
+  }
+
+  return (
+    <div className="space-y-2">
+      {tasks.map((task) => (
+        <TaskCard
+          key={task.id}
+          task={task}
+          onClick={() => onTaskClick(task)}
+        />
+      ))}
+    </div>
+  );
 }
