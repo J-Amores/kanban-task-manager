@@ -12,12 +12,12 @@
 
 ## 2. Layout & Navigation 🏗️
 
-- [ ] Create base layout with sidebar
-- [ ] Implement responsive sidebar toggle
-- [ ] Add theme toggle component
-- [ ] Set up navigation between boards
-- [ ] Create loading and error states
-- [ ] Implement mobile-responsive design
+- [x] Create base layout with sidebar
+- [x] Implement responsive sidebar toggle
+- [x] Add theme toggle component
+- [x] Set up navigation between boards
+- [x] Create loading and error states
+- [x] Implement mobile-responsive design
 
 ## 3. Board Management 📋
 

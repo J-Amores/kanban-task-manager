@@ -1,6 +1,6 @@
 "use client"
 
-import { MoreVertical, Plus } from "lucide-react"
+import { MoreVertical, Plus, Menu } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { AddTaskDialog } from "@/components/add-task-dialog"
@@ -18,6 +18,16 @@ export function Header({ sidebarOpen, onSidebarToggle, boardName = "Platform Lau
   return (
     <header className="h-16 border-b bg-background flex items-center justify-between px-4">
       <div className="flex items-center">
+        {/* Hamburger menu button for small screens */}
+        <Button
+          variant="ghost"
+          size="icon"
+          className="md:hidden mr-2"
+          onClick={onSidebarToggle}
+        >
+          <Menu className="h-5 w-5" />
+          <span className="sr-only">Toggle sidebar</span>
+        </Button>
         <h1 className="text-xl font-bold">{boardName}</h1>
       </div>
       <div className="flex items-center gap-2">

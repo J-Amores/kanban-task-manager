@@ -25,7 +25,7 @@ export function BoardView({ boardId }: BoardViewProps) {
   const [editingColumn, setEditingColumn] = useState<string | null>(null);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [creatingTaskInColumn, setCreatingTaskInColumn] = useState<string | null>(null);
-  const { data: columns, isLoading } = useColumns(boardId);
+  const { data: columns, isLoading, error: columnsError } = useColumns(boardId);
   const createColumn = useCreateColumn();
   const updateColumn = useUpdateColumn();
   const deleteColumn = useDeleteColumn();
@@ -42,6 +42,16 @@ export function BoardView({ boardId }: BoardViewProps) {
     return (
       <div className="h-full p-4 flex items-center justify-center">
         <p className="text-muted-foreground">Loading columns...</p>
+      </div>
+    );
+  }
+
+  if (columnsError) {
+    return (
+      <div className="h-full p-4 flex flex-col items-center justify-center">
+        <p className="text-destructive mb-2">Error loading columns.</p>
+        <p className="text-sm text-muted-foreground">{columnsError.message}</p>
+        {/* Optionally, add a retry button here */}
       </div>
     );
   }
@@ -152,13 +162,23 @@ export function BoardView({ boardId }: BoardViewProps) {
 }
 
 function TaskList({ columnId, onTaskClick }: { columnId: string; onTaskClick: (task: Task) => void }) {
-  const { data: tasks, isLoading } = useTasks(columnId);
+  const { data: tasks, isLoading, error: tasksError } = useTasks(columnId);
 
   if (isLoading) {
     return (
       <div className="space-y-2">
         <div className="h-[72px] rounded-md bg-secondary/50 animate-pulse" />
         <div className="h-[72px] rounded-md bg-secondary/50 animate-pulse" />
+      </div>
+    );
+  }
+
+  if (tasksError) {
+    return (
+      <div className="p-2 text-center">
+        <p className="text-destructive text-sm">Error loading tasks.</p>
+        {/* <p className="text-xs text-muted-foreground">{tasksError.message}</p> */}
+        {/* Simplified error message for tasks within a column */}
       </div>
     );
   }

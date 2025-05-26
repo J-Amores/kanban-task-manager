@@ -5,13 +5,14 @@ import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { QueryProvider } from "@/lib/react-query/provider"
 import { Toaster } from "@/components/ui/toaster"
+import { MainLayout } from "@/components/main-layout"
 
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
   title: "Kanban Task Management",
   description: "A task management app created to make your work organized.",
-    generator: 'v0.dev'
+  generator: 'v0.dev'
 }
 
 export default function RootLayout({
@@ -24,7 +25,7 @@ export default function RootLayout({
       <body className={inter.className}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           <QueryProvider>
-            {children}
+            <MainLayout>{children}</MainLayout>
             <Toaster />
           </QueryProvider>
         </ThemeProvider>
