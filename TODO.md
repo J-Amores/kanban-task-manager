@@ -21,8 +21,8 @@
 
 ## 3. Board Management 📋
 
-- [ ] Create board list component
-- [ ] Implement board creation form
+- [x] Create board list component
+- [x] Implement board creation form
 - [ ] Add board editing functionality
 - [ ] Create board deletion with confirmation
 - [ ] Add board view component

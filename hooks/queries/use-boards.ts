@@ -5,19 +5,25 @@ import { toast } from '@/components/ui/use-toast';
 import { handleError } from '@/lib/utils/error-handler';
 
 interface Board {
-  id: string;
+  id: number;
   name: string;
-  createdAt: Date;
-  updatedAt: Date;
+  description: string | null;
+  is_active: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
 interface CreateBoardData {
   name: string;
+  description?: string | null;
+  is_active?: boolean;
 }
 
 interface UpdateBoardData {
-  id: string;
+  id: number;
   name: string;
+  description: string | null;
+  is_active: boolean;
 }
 
 // API functions
@@ -26,7 +32,8 @@ async function getBoards(): Promise<Board[]> {
   if (!response.ok) {
     throw new Error('Failed to fetch boards');
   }
-  return response.json();
+  const data = await response.json();
+  return data as Board[];
 }
 
 async function createBoard(data: CreateBoardData): Promise<Board> {
@@ -42,7 +49,7 @@ async function createBoard(data: CreateBoardData): Promise<Board> {
     throw new Error('Failed to create board');
   }
   
-  return response.json();
+  return await response.json() as Board;
 }
 
 async function updateBoard({ id, ...data }: UpdateBoardData): Promise<Board> {
@@ -58,10 +65,10 @@ async function updateBoard({ id, ...data }: UpdateBoardData): Promise<Board> {
     throw new Error('Failed to update board');
   }
 
-  return response.json();
+  return await response.json() as Board;
 }
 
-async function deleteBoard(id: string): Promise<void> {
+async function deleteBoard(id: number): Promise<void> {
   const response = await fetch(`/api/boards/${id}`, {
     method: 'DELETE',
   });
