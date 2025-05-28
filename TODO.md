@@ -23,8 +23,8 @@
 
 - [x] Create board list component
 - [x] Implement board creation form
-- [ ] Add board editing functionality
-- [ ] Create board deletion with confirmation
+- [x] Add board editing functionality
+- [x] Create board deletion with confirmation
 - [ ] Add board view component
 - [ ] Implement board selection/activation
 
