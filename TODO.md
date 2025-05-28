@@ -25,8 +25,8 @@
 - [x] Implement board creation form
 - [x] Add board editing functionality
 - [x] Create board deletion with confirmation
-- [ ] Add board view component
-- [ ] Implement board selection/activation
+- [x] Add board view component
+- [x] Implement board selection/activation
 
 ## 4. Column Management 📊
 

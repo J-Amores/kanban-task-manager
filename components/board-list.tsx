@@ -1,8 +1,12 @@
+'use client';
+
 import React from 'react';
-import { useBoards, Board } from '@/hooks/use-boards';
-import { Skeleton } from '@/components/ui/skeleton'; // Assuming Shadcn Skeleton is available
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"; // Assuming Shadcn Alert
-import { Terminal } from 'lucide-react'; // For error icon
+import { useBoards } from '@/hooks/queries/use-boards';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Terminal, LayoutDashboard } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { useParams, useRouter } from 'next/navigation';
 
 export const BoardList: React.FC = () => {
   const { data: boards, isLoading, isError, error } = useBoards();
@@ -35,11 +39,25 @@ export const BoardList: React.FC = () => {
 
   return (
     <ul className="space-y-1 p-4">
-      {boards.map((board: Board) => (
-        <li key={board.id} className="p-2 hover:bg-accent rounded-md cursor-pointer">
-          {board.name}
-        </li>
-      ))}
+      {boards.map((board) => {
+        const params = useParams();
+        const router = useRouter();
+        const isActive = params.boardId === board.id.toString();
+        
+        return (
+          <li
+            key={board.id}
+            onClick={() => router.push(`/boards/${board.id}`)}
+            className={cn(
+              "p-2 hover:bg-accent rounded-md cursor-pointer flex items-center gap-2",
+              isActive && "bg-accent"
+            )}
+          >
+            <LayoutDashboard className="h-4 w-4" />
+            <span>{board.name}</span>
+          </li>
+        );
+      })}
     </ul>
   );
 };
