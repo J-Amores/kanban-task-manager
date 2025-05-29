@@ -44,9 +44,9 @@
 - [x] Add task editing functionality
 - [x] Create task deletion with confirmation
 - [x] Implement task details modal
-- [ ] Add task movement between columns
-- [ ] Create task position management
-- [ ] Implement drag and drop functionality
+- [x] Add task movement between columns
+- [x] Create task position management
+- [x] Implement drag and drop functionality with Framer Motion animations
 
 ## 6. Subtask System 📝
 

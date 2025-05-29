@@ -12,13 +12,15 @@ import { useState } from "react";
 import { Task, useMoveTask, useTasks } from "@/hooks/queries/use-tasks";
 import { DraggableTask } from "./draggable-task";
 import { DropZone } from "./drop-zone";
-import { TaskCard } from "../task-card";
+import { TaskCard } from "../tasks/task-card";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface TaskListProps {
   columnId: string;
+  onTaskClick?: (task: Task) => void;
 }
 
-export function TaskList({ columnId }: TaskListProps) {
+export function TaskList({ columnId, onTaskClick = () => {} }: TaskListProps) {
   const [activeTask, setActiveTask] = useState<Task | null>(null);
   const { data: tasks = [], isLoading } = useTasks(columnId);
   const { mutate: moveTask } = useMoveTask();
@@ -49,11 +51,29 @@ export function TaskList({ columnId }: TaskListProps) {
     if (over && active.id !== over.id) {
       const task = tasks.find((t) => t.id === active.id);
       if (task) {
-        // Calculate new position based on target column's tasks
         const targetTasks = tasks.filter((t) => t.columnId === over.id);
-        const newPosition = targetTasks.length
-          ? Math.max(...targetTasks.map((t) => t.position)) + 1
-          : 0;
+        const sortedTasks = targetTasks.sort((a, b) => a.position - b.position);
+        
+        // Find the closest tasks to determine the new position
+        const overTaskIndex = sortedTasks.findIndex((t) => t.id === over.id);
+        const prevTask = overTaskIndex > 0 ? sortedTasks[overTaskIndex - 1] : null;
+        const nextTask = overTaskIndex !== -1 ? sortedTasks[overTaskIndex] : null;
+        
+        // Calculate new position
+        let newPosition: number;
+        if (!prevTask && !nextTask) {
+          // Empty column
+          newPosition = 0;
+        } else if (!prevTask) {
+          // Insert at start
+          newPosition = nextTask?.position ?? 0 - 1000;
+        } else if (!nextTask) {
+          // Insert at end
+          newPosition = prevTask.position + 1000;
+        } else {
+          // Insert between tasks
+          newPosition = prevTask.position + (nextTask.position - prevTask.position) / 2;
+        }
 
         moveTask({
           taskId: task.id,
@@ -77,17 +97,44 @@ export function TaskList({ columnId }: TaskListProps) {
       onDragEnd={handleDragEnd}
     >
       <DropZone id={columnId}>
-        <div className="space-y-2 p-2">
-          {tasks
-            .sort((a, b) => a.position - b.position)
-            .map((task) => (
-              <DraggableTask key={task.id} task={task} />
-            ))}
-        </div>
+        <motion.div
+          className="space-y-2 p-2"
+          layout
+          transition={{
+            type: "spring",
+            bounce: 0.2,
+            duration: 0.6
+          }}
+        >
+          <AnimatePresence mode="popLayout">
+            {tasks
+              .sort((a, b) => a.position - b.position)
+              .map((task) => (
+                <motion.div
+                  key={task.id}
+                  layout
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{
+                    type: "spring",
+                    bounce: 0.3,
+                    duration: 0.5
+                  }}
+                >
+                  <DraggableTask
+                    key={task.id}
+                    task={task}
+                    onClick={() => onTaskClick(task)}
+                  />
+                </motion.div>
+              ))}
+          </AnimatePresence>
+        </motion.div>
       </DropZone>
 
       <DragOverlay>
-        {activeTask ? <TaskCard task={activeTask} /> : null}
+        {activeTask ? <TaskCard task={activeTask} onClick={() => {}} /> : null}
       </DragOverlay>
     </DndContext>
   );
