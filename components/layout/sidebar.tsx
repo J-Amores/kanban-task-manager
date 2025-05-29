@@ -5,10 +5,10 @@ import Link from "next/link"
 import { usePathname } from 'next/navigation'; 
 import { LayoutDashboard, Plus, Eye, EyeOff } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { ThemeToggle } from "@/components/theme-toggle"
+import { ThemeToggle } from "@/components/theme/theme-toggle"
 import { Button } from "@/components/ui/button"
 import { useBoards } from '@/hooks/queries/use-boards';
-import { CreateBoardDialog } from "@/components/create-board-dialog"; 
+import { CreateBoardDialog } from "@/components/boards/create-board-dialog"; 
 
 interface SidebarProps {
   isOpen: boolean;

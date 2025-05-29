@@ -3,7 +3,7 @@
 import { MoreVertical, Plus, Menu } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { AddTaskDialog } from "@/components/add-task-dialog"
+import { AddTaskDialog } from "@/components/tasks/add-task-dialog"
 import { useState } from "react"
 
 interface HeaderProps {

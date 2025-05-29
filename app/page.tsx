@@ -1,5 +1,5 @@
-import { MainLayout } from "@/components/main-layout"
-import { WelcomeScreen } from "@/components/welcome-screen"
+import { MainLayout } from "@/components/layout/main-layout"
+import { WelcomeScreen } from "@/components/layout/welcome-screen"
 
 export default function Home() {
   // In a real app, we would check if the user has any boards

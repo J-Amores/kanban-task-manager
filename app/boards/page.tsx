@@ -1,5 +1,5 @@
 import { Metadata } from "next"
-import { BoardList } from "@/components/board-list"
+import { BoardList } from "@/components/boards/board-list"
 
 export const metadata: Metadata = {
   title: "Boards | Kanban Task Manager",
