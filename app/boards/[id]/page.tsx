@@ -1,6 +1,6 @@
 'use client';
 
-import { BoardView } from '@/components/board-view';
+import { BoardView } from '@/components/boards/board-view';
 import { useParams } from 'next/navigation';
 import { useBoards } from '@/hooks/queries/use-boards';
 import { Skeleton } from '@/components/ui/skeleton';

@@ -9,6 +9,7 @@ interface Column {
   name: string;
   boardId: string;
   position: number;
+  taskCount: number;
   createdAt: Date;
   updatedAt: Date;
 }
