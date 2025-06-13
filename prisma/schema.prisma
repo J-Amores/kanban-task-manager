@@ -1,0 +1,98 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Board {
+  id        String   @id
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  columns Column[]
+  
+  @@map("boards")
+}
+
+model Column {
+  id        String   @id @default(cuid())
+  name      String
+  color     String?
+  order     Int      @default(0)
+  boardId   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  board Board @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  tasks Task[]
+  
+  @@map("columns")
+}
+
+model Task {
+  id          String    @id
+  title       String
+  description String?
+  status      String
+  dueDate     DateTime?
+  order       Int       @default(0)
+  columnId    String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  column       Column         @relation(fields: [columnId], references: [id], onDelete: Cascade)
+  subtasks     Subtask[]
+  customFields CustomField[]
+  
+  @@map("tasks")
+}
+
+model Subtask {
+  id          String   @id @default(cuid())
+  title       String
+  isCompleted Boolean  @default(false)
+  order       Int      @default(0)
+  taskId      String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  task Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  
+  @@map("subtasks")
+}
+
+model CustomField {
+  id        String   @id @default(cuid())
+  name      String
+  value     String
+  taskId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  task Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  
+  @@map("custom_fields")
+}
+
+model Rule {
+  id              String   @id @default(cuid())
+  name            String
+  enabled         Boolean  @default(true)
+  conditionType   String
+  conditionField  String?
+  conditionOperator String
+  conditionValue  String?
+  actionType      String
+  targetColumnId  String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@map("rules")
+}
