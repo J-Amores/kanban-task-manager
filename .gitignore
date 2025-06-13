@@ -18,12 +18,14 @@ pnpm-debug.log*
 out/
 build
 dist
+*.tsbuildinfo
 
 # Database
 *.db
 *.sqlite
 *.sqlite3
 /lib/generated/prisma
+prisma/dev.db
 
 # IDE and editors
 .vscode/
@@ -79,3 +81,9 @@ temp/
 
 # Claude settings
 .claude/
+
+# Package managers
+pnpm-lock.yaml
+
+# TypeScript
+*.tsbuildinfo

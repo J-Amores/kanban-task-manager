@@ -34,6 +34,72 @@ function transformColumn(column: any): ColumnType {
 
 export const database = {
   // Board operations
+  async createBoard(name: string) {
+    const board = await prisma.board.create({
+      data: {
+        id: `board-${Date.now()}`,
+        name,
+      },
+      include: {
+        columns: {
+          include: {
+            tasks: {
+              include: {
+                subtasks: {
+                  orderBy: { order: 'asc' }
+                },
+                customFields: true,
+              },
+              orderBy: { order: 'asc' }
+            }
+          },
+          orderBy: { order: 'asc' }
+        }
+      }
+    })
+
+    return {
+      id: board.id,
+      name: board.name,
+      columns: board.columns.map(transformColumn)
+    }
+  },
+
+  async updateBoard(boardId: string, updates: { name?: string }) {
+    const board = await prisma.board.update({
+      where: { id: boardId },
+      data: updates,
+      include: {
+        columns: {
+          include: {
+            tasks: {
+              include: {
+                subtasks: {
+                  orderBy: { order: 'asc' }
+                },
+                customFields: true,
+              },
+              orderBy: { order: 'asc' }
+            }
+          },
+          orderBy: { order: 'asc' }
+        }
+      }
+    })
+
+    return {
+      id: board.id,
+      name: board.name,
+      columns: board.columns.map(transformColumn)
+    }
+  },
+
+  async deleteBoard(boardId: string) {
+    await prisma.board.delete({
+      where: { id: boardId }
+    })
+  },
+
   async getBoards() {
     const boards = await prisma.board.findMany({
       include: {
@@ -352,9 +418,9 @@ export const database = {
       enabled: rule.enabled,
       condition: {
         type: rule.conditionType as any,
-        field: rule.conditionField,
+        field: rule.conditionField || undefined,
         operator: rule.conditionOperator as any,
-        value: rule.conditionValue,
+        value: rule.conditionValue || undefined,
       },
       action: {
         type: rule.actionType as any,
@@ -369,9 +435,9 @@ export const database = {
         name: rule.name,
         enabled: rule.enabled,
         conditionType: rule.condition.type,
-        conditionField: rule.condition.field,
+        conditionField: rule.condition.field || null,
         conditionOperator: rule.condition.operator,
-        conditionValue: rule.condition.value,
+        conditionValue: rule.condition.value || null,
         actionType: rule.action.type,
         targetColumnId: rule.action.targetColumnId,
       }
@@ -401,9 +467,9 @@ export const database = {
         name: updates.name,
         enabled: updates.enabled,
         conditionType: updates.condition?.type,
-        conditionField: updates.condition?.field,
+        conditionField: updates.condition?.field || null,
         conditionOperator: updates.condition?.operator,
-        conditionValue: updates.condition?.value,
+        conditionValue: updates.condition?.value || null,
         actionType: updates.action?.type,
         targetColumnId: updates.action?.targetColumnId,
       }
@@ -415,9 +481,9 @@ export const database = {
       enabled: rule.enabled,
       condition: {
         type: rule.conditionType as any,
-        field: rule.conditionField,
+        field: rule.conditionField || undefined,
         operator: rule.conditionOperator as any,
-        value: rule.conditionValue,
+        value: rule.conditionValue || undefined,
       },
       action: {
         type: rule.actionType as any,

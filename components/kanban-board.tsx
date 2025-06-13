@@ -13,280 +13,166 @@ import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useToast } from "@/hooks/use-toast"
 import type { Task, Column as ColumnType, Rule } from "@/types/kanban"
-import { generateId } from "@/lib/utils"
+import { api } from "@/lib/api"
+import { cn } from "@/lib/utils"
 import Logo from "./logo"
+import BoardSidebar from "./board-sidebar"
 
-// Mock data for initial tasks
-const generateMockTasks = (): { [key: string]: Task[] } => {
-  // Helper to create a date string (past or future)
-  const createDate = (daysFromNow: number): string => {
-    const date = new Date()
-    date.setDate(date.getDate() + daysFromNow)
-    return date.toISOString()
-  }
 
-  // To Do tasks
-  const todoTasks: Task[] = [
-    {
-      id: `task-${generateId()}`,
-      title: "Research competitor products",
-      description: "Analyze top 5 competitor products and create a comparison report",
-      status: "To Do",
-      dueDate: createDate(5),
-      subtasks: [
-        { id: `subtask-${generateId()}`, title: "Identify top competitors", completed: false },
-        { id: `subtask-${generateId()}`, title: "Create comparison criteria", completed: false },
-        { id: `subtask-${generateId()}`, title: "Gather product information", completed: false },
-      ],
-      customFields: [
-        { id: `field-${generateId()}`, name: "Priority", value: "High" },
-        { id: `field-${generateId()}`, name: "Estimated Hours", value: "8" },
-      ],
-      createdAt: createDate(-2),
-    },
-    {
-      id: `task-${generateId()}`,
-      title: "Design new landing page",
-      description: "Create wireframes and mockups for the new product landing page",
-      status: "To Do",
-      dueDate: createDate(7),
-      subtasks: [
-        { id: `subtask-${generateId()}`, title: "Research design trends", completed: false },
-        { id: `subtask-${generateId()}`, title: "Create wireframes", completed: false },
-      ],
-      customFields: [
-        { id: `field-${generateId()}`, name: "Priority", value: "Medium" },
-        { id: `field-${generateId()}`, name: "Assigned To", value: "Sarah" },
-      ],
-      createdAt: createDate(-1),
-    },
-    {
-      id: `task-${generateId()}`,
-      title: "Update documentation",
-      description: "Update the user documentation with the latest features",
-      status: "To Do",
-      dueDate: createDate(3),
-      subtasks: [],
-      customFields: [{ id: `field-${generateId()}`, name: "Priority", value: "Low" }],
-      createdAt: createDate(-3),
-    },
-  ]
-
-  // In Progress tasks
-  const inProgressTasks: Task[] = [
-    {
-      id: `task-${generateId()}`,
-      title: "Implement authentication flow",
-      description: "Create login, registration, and password reset functionality",
-      status: "In Progress",
-      dueDate: createDate(2),
-      subtasks: [
-        { id: `subtask-${generateId()}`, title: "Design authentication screens", completed: true },
-        { id: `subtask-${generateId()}`, title: "Implement login functionality", completed: true },
-        { id: `subtask-${generateId()}`, title: "Implement registration", completed: false },
-        { id: `subtask-${generateId()}`, title: "Implement password reset", completed: false },
-      ],
-      customFields: [
-        { id: `field-${generateId()}`, name: "Priority", value: "High" },
-        { id: `field-${generateId()}`, name: "Assigned To", value: "Michael" },
-        { id: `field-${generateId()}`, name: "Story Points", value: "8" },
-      ],
-      createdAt: createDate(-5),
-    },
-    {
-      id: `task-${generateId()}`,
-      title: "Optimize database queries",
-      description: "Improve performance of slow database queries on the dashboard",
-      status: "In Progress",
-      dueDate: createDate(1),
-      subtasks: [
-        { id: `subtask-${generateId()}`, title: "Identify slow queries", completed: true },
-        { id: `subtask-${generateId()}`, title: "Add indexes", completed: false },
-        { id: `subtask-${generateId()}`, title: "Rewrite complex queries", completed: false },
-      ],
-      customFields: [
-        { id: `field-${generateId()}`, name: "Priority", value: "High" },
-        { id: `field-${generateId()}`, name: "Estimated Hours", value: "6" },
-      ],
-      createdAt: createDate(-4),
-    },
-  ]
-
-  // Blocked tasks
-  const blockedTasks: Task[] = [
-    {
-      id: `task-${generateId()}`,
-      title: "Fix payment integration",
-      description: "Resolve issues with the Stripe payment integration",
-      status: "Blocked",
-      dueDate: createDate(-1), // Overdue
-      subtasks: [
-        { id: `subtask-${generateId()}`, title: "Investigate error logs", completed: true },
-        { id: `subtask-${generateId()}`, title: "Contact Stripe support", completed: true },
-        { id: `subtask-${generateId()}`, title: "Update API integration", completed: false },
-      ],
-      customFields: [
-        { id: `field-${generateId()}`, name: "Priority", value: "Critical" },
-        { id: `field-${generateId()}`, name: "Blocker", value: "Waiting for API documentation" },
-      ],
-      createdAt: createDate(-7),
-    },
-    {
-      id: `task-${generateId()}`,
-      title: "Finalize third-party integrations",
-      description: "Complete integration with analytics and marketing tools",
-      status: "Blocked",
-      dueDate: createDate(-2), // Overdue
-      subtasks: [
-        { id: `subtask-${generateId()}`, title: "Set up Google Analytics", completed: true },
-        { id: `subtask-${generateId()}`, title: "Integrate Mailchimp", completed: false },
-      ],
-      customFields: [
-        { id: `field-${generateId()}`, name: "Priority", value: "Medium" },
-        { id: `field-${generateId()}`, name: "Blocker", value: "Waiting for API keys" },
-      ],
-      createdAt: createDate(-6),
-    },
-  ]
-
-  // Completed tasks
-  const completedTasks: Task[] = [
-    {
-      id: `task-${generateId()}`,
-      title: "Create project proposal",
-      description: "Draft and finalize the project proposal document",
-      status: "Completed",
-      dueDate: createDate(-5),
-      subtasks: [
-        { id: `subtask-${generateId()}`, title: "Research market needs", completed: true },
-        { id: `subtask-${generateId()}`, title: "Define project scope", completed: true },
-        { id: `subtask-${generateId()}`, title: "Create budget estimate", completed: true },
-      ],
-      customFields: [
-        { id: `field-${generateId()}`, name: "Priority", value: "High" },
-        { id: `field-${generateId()}`, name: "Completed On", value: createDate(-6).split("T")[0] },
-      ],
-      createdAt: createDate(-10),
-    },
-    {
-      id: `task-${generateId()}`,
-      title: "Set up development environment",
-      description: "Configure development, staging, and production environments",
-      status: "Completed",
-      dueDate: createDate(-8),
-      subtasks: [
-        { id: `subtask-${generateId()}`, title: "Set up local environment", completed: true },
-        { id: `subtask-${generateId()}`, title: "Configure staging server", completed: true },
-        { id: `subtask-${generateId()}`, title: "Set up CI/CD pipeline", completed: true },
-      ],
-      customFields: [
-        { id: `field-${generateId()}`, name: "Priority", value: "Medium" },
-        { id: `field-${generateId()}`, name: "Completed By", value: "David" },
-      ],
-      createdAt: createDate(-12),
-    },
-    {
-      id: `task-${generateId()}`,
-      title: "Initial user research",
-      description: "Conduct interviews and surveys with potential users",
-      status: "Completed",
-      dueDate: createDate(-15),
-      subtasks: [
-        { id: `subtask-${generateId()}`, title: "Create research questions", completed: true },
-        { id: `subtask-${generateId()}`, title: "Recruit participants", completed: true },
-        { id: `subtask-${generateId()}`, title: "Analyze results", completed: true },
-      ],
-      customFields: [
-        { id: `field-${generateId()}`, name: "Priority", value: "High" },
-        { id: `field-${generateId()}`, name: "Participants", value: "12" },
-      ],
-      createdAt: createDate(-20),
-    },
-  ]
-
-  return {
-    "To Do": todoTasks,
-    "In Progress": inProgressTasks,
-    Blocked: blockedTasks,
-    Completed: completedTasks,
-  }
+interface Board {
+  id: string
+  name: string
+  columns: ColumnType[]
 }
 
 export default function KanbanBoard() {
   const { toast } = useToast()
-  const [columns, setColumns] = useState<ColumnType[]>([])
+  const [boards, setBoards] = useState<Board[]>([])
+  const [currentBoard, setCurrentBoard] = useState<Board | null>(null)
   const [selectedTask, setSelectedTask] = useState<Task | null>(null)
   const [newColumnTitle, setNewColumnTitle] = useState("")
   const [isAddingColumn, setIsAddingColumn] = useState(false)
   const [rules, setRules] = useState<Rule[]>([])
   const [activeTab, setActiveTab] = useState("board")
+  const [loading, setLoading] = useState(true)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
+  
+  // Derived state
+  const columns = currentBoard?.columns || []
+  const currentBoardId = currentBoard?.id || null
 
-  // Initialize with default columns and mock data
+  // Load initial data
   useEffect(() => {
-    const mockTasks = generateMockTasks()
-
-    const initialColumns: ColumnType[] = [
-      {
-        id: "column-1",
-        title: "To Do",
-        tasks: mockTasks["To Do"],
-        color: "bg-blue-50 dark:bg-blue-900/30",
-      },
-      {
-        id: "column-2",
-        title: "In Progress",
-        tasks: mockTasks["In Progress"],
-        color: "bg-yellow-50 dark:bg-yellow-900/30",
-      },
-      {
-        id: "column-3",
-        title: "Blocked",
-        tasks: mockTasks["Blocked"],
-        color: "bg-red-50 dark:bg-red-900/30",
-      },
-      {
-        id: "column-4",
-        title: "Completed",
-        tasks: mockTasks["Completed"],
-        color: "bg-green-50 dark:bg-green-900/30",
-      },
-    ]
-    setColumns(initialColumns)
-
-    // Add a sample automation rule
-    setRules([
-      {
-        id: `rule-${generateId()}`,
-        name: "Move overdue tasks to Blocked",
-        condition: {
-          type: "due-date",
-          operator: "is-overdue",
-        },
-        action: {
-          type: "move-to-column",
-          targetColumnId: "column-3", // Blocked column
-        },
-        enabled: true,
-      },
-      {
-        id: `rule-${generateId()}`,
-        name: "Move completed tasks when all subtasks done",
-        condition: {
-          type: "subtasks-completed",
-          operator: "all-completed",
-        },
-        action: {
-          type: "move-to-column",
-          targetColumnId: "column-4", // Completed column
-        },
-        enabled: true,
-      },
-    ])
+    const loadInitialData = async () => {
+      try {
+        setLoading(true)
+        
+        // Load boards
+        const boardsData = await api.getBoards()
+        setBoards(boardsData)
+        
+        // Set first board as current if available
+        if (boardsData.length > 0) {
+          setCurrentBoard(boardsData[0])
+        }
+        
+        // Load rules
+        const rules = await api.getRules()
+        setRules(rules)
+      } catch (error) {
+        console.error('Error loading data:', error)
+        toast({
+          title: "Error loading data",
+          description: "Failed to load board data. Please refresh the page.",
+          variant: "destructive",
+        })
+      } finally {
+        setLoading(false)
+      }
+    }
+    
+    loadInitialData()
   }, [])
+
+  // Board management functions
+  const handleBoardSelect = async (boardId: string) => {
+    try {
+      const board = await api.getBoardById(boardId)
+      setCurrentBoard(board)
+      setSidebarOpen(false) // Close sidebar on mobile after selection
+      toast({
+        title: "Board switched",
+        description: `Switched to "${board.name}"`,
+      })
+    } catch (error) {
+      console.error('Error loading board:', error)
+      toast({
+        title: "Error",
+        description: "Failed to load board. Please try again.",
+        variant: "destructive",
+      })
+    }
+  }
+
+  const handleCreateBoard = async (name: string) => {
+    try {
+      const newBoard = await api.createBoard(name)
+      setBoards([...boards, newBoard])
+      setCurrentBoard(newBoard)
+      toast({
+        title: "Board created",
+        description: `"${name}" board has been created`,
+      })
+    } catch (error) {
+      console.error('Error creating board:', error)
+      toast({
+        title: "Error",
+        description: "Failed to create board. Please try again.",
+        variant: "destructive",
+      })
+    }
+  }
+
+  const handleRenameBoard = async (boardId: string, newName: string) => {
+    try {
+      const updatedBoard = await api.updateBoard(boardId, { name: newName })
+      setBoards(boards.map(board => 
+        board.id === boardId ? updatedBoard : board
+      ))
+      if (currentBoard?.id === boardId) {
+        setCurrentBoard(updatedBoard)
+      }
+      toast({
+        title: "Board renamed",
+        description: `Board renamed to "${newName}"`,
+      })
+    } catch (error) {
+      console.error('Error renaming board:', error)
+      toast({
+        title: "Error",
+        description: "Failed to rename board. Please try again.",
+        variant: "destructive",
+      })
+    }
+  }
+
+  const handleDeleteBoard = async (boardId: string) => {
+    if (boards.length <= 1) {
+      toast({
+        title: "Cannot delete board",
+        description: "You must have at least one board.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    try {
+      await api.deleteBoard(boardId)
+      const remainingBoards = boards.filter(board => board.id !== boardId)
+      setBoards(remainingBoards)
+      
+      // If deleted board was current, switch to first available
+      if (currentBoard?.id === boardId && remainingBoards.length > 0) {
+        setCurrentBoard(remainingBoards[0])
+      }
+      
+      toast({
+        title: "Board deleted",
+        description: "Board has been deleted",
+      })
+    } catch (error) {
+      console.error('Error deleting board:', error)
+      toast({
+        title: "Error",
+        description: "Failed to delete board. Please try again.",
+        variant: "destructive",
+      })
+    }
+  }
 
   // Process automation rules
   useEffect(() => {
-    if (rules.length === 0) return
+    if (!currentBoard || rules.length === 0) return
 
     // Only process enabled rules
     const enabledRules = rules.filter((rule) => rule.enabled)
@@ -295,7 +181,7 @@ export default function KanbanBoard() {
     const tasksToMove: { taskId: string; sourceColumnId: string; targetColumnId: string }[] = []
 
     // Check each task against each rule
-    columns.forEach((column) => {
+    currentBoard.columns.forEach((column) => {
       column.tasks.forEach((task) => {
         enabledRules.forEach((rule) => {
           const { condition, action } = rule
@@ -321,7 +207,7 @@ export default function KanbanBoard() {
 
           // If condition is met and task is not already in the target column
           if (conditionMet && action.type === "move-to-column") {
-            const targetColumn = columns.find((col) => col.id === action.targetColumnId)
+            const targetColumn = currentBoard.columns.find((col) => col.id === action.targetColumnId)
             if (targetColumn && task.status !== targetColumn.title) {
               tasksToMove.push({
                 taskId: task.id,
@@ -336,7 +222,7 @@ export default function KanbanBoard() {
 
     // Apply the moves
     if (tasksToMove.length > 0) {
-      const newColumns = [...columns]
+      const newColumns = [...currentBoard.columns]
 
       tasksToMove.forEach(({ taskId, sourceColumnId, targetColumnId }) => {
         const sourceColIndex = newColumns.findIndex((col) => col.id === sourceColumnId)
@@ -374,11 +260,15 @@ export default function KanbanBoard() {
         }
       })
 
-      setColumns(newColumns)
+      const updatedBoard = { ...currentBoard, columns: newColumns }
+      setCurrentBoard(updatedBoard)
+      setBoards(boards.map(board => 
+        board.id === currentBoard.id ? updatedBoard : board
+      ))
     }
-  }, [columns, rules, selectedTask, toast])
+  }, [currentBoard, rules, selectedTask, toast, boards])
 
-  const handleDragEnd = (result: DropResult) => {
+  const handleDragEnd = async (result: DropResult) => {
     const { destination, source, draggableId } = result
 
     // If there's no destination or the item is dropped in the same place
@@ -392,14 +282,16 @@ export default function KanbanBoard() {
 
     if (!sourceColumn || !destColumn) return
 
-    // Create new arrays for the columns
-    const newColumns = [...columns]
-    const sourceColIndex = newColumns.findIndex((col) => col.id === source.droppableId)
-    const destColIndex = newColumns.findIndex((col) => col.id === destination.droppableId)
-
     // Find the task being moved
     const task = sourceColumn.tasks.find((t) => t.id === draggableId)
     if (!task) return
+
+    if (!currentBoard) return
+    
+    // Optimistically update UI
+    const newColumns = [...currentBoard.columns]
+    const sourceColIndex = newColumns.findIndex((col) => col.id === source.droppableId)
+    const destColIndex = newColumns.findIndex((col) => col.id === destination.droppableId)
 
     // Remove the task from the source column
     newColumns[sourceColIndex] = {
@@ -418,88 +310,175 @@ export default function KanbanBoard() {
       ],
     }
 
-    setColumns(newColumns)
+    const updatedBoard = { ...currentBoard, columns: newColumns }
+    setCurrentBoard(updatedBoard)
+    setBoards(boards.map(board => 
+      board.id === currentBoard.id ? updatedBoard : board
+    ))
 
     // Update selected task if it's the one being moved
     if (selectedTask && selectedTask.id === draggableId) {
       setSelectedTask(updatedTask)
     }
 
-    toast({
-      title: "Task moved",
-      description: `"${task.title}" moved to ${destColumn.title}`,
-    })
-  }
-
-  const addTask = (columnId: string, task: Task) => {
-    const newColumns = columns.map((column) => {
-      if (column.id === columnId) {
-        return {
-          ...column,
-          tasks: [...column.tasks, task],
-        }
-      }
-      return column
-    })
-    setColumns(newColumns)
-    toast({
-      title: "Task created",
-      description: `"${task.title}" added to ${columns.find((col) => col.id === columnId)?.title}`,
-    })
-  }
-
-  const updateTask = (updatedTask: Task) => {
-    const newColumns = columns.map((column) => {
-      return {
-        ...column,
-        tasks: column.tasks.map((task) => (task.id === updatedTask.id ? updatedTask : task)),
-      }
-    })
-    setColumns(newColumns)
-    setSelectedTask(updatedTask)
-    toast({
-      title: "Task updated",
-      description: `"${updatedTask.title}" has been updated`,
-    })
-  }
-
-  const deleteTask = (taskId: string) => {
-    const newColumns = columns.map((column) => {
-      return {
-        ...column,
-        tasks: column.tasks.filter((task) => task.id !== taskId),
-      }
-    })
-    setColumns(newColumns)
-    setSelectedTask(null)
-    toast({
-      title: "Task deleted",
-      description: "The task has been deleted",
-    })
-  }
-
-  const duplicateTask = (task: Task, columnId?: string) => {
-    // Create a deep copy of the task with a new ID
-    const duplicatedTask: Task = {
-      ...JSON.parse(JSON.stringify(task)),
-      id: `task-${generateId()}`,
-      title: `${task.title} (Copy)`,
-      createdAt: new Date().toISOString(),
-    }
-
-    // If columnId is provided, add to that column, otherwise add to the same column as the original
-    const targetColumnId = columnId || columns.find((col) => col.tasks.some((t) => t.id === task.id))?.id
-
-    if (targetColumnId) {
-      addTask(targetColumnId, duplicatedTask)
+    try {
+      await api.moveTask(draggableId, source.droppableId, destination.droppableId, destination.index)
       toast({
-        title: "Task duplicated",
-        description: `"${duplicatedTask.title}" created`,
+        title: "Task moved",
+        description: `"${task.title}" moved to ${destColumn.title}`,
+      })
+    } catch (error) {
+      // Revert optimistic update on error
+      console.error('Error moving task:', error)
+      toast({
+        title: "Error",
+        description: "Failed to move task. Please try again.",
+        variant: "destructive",
+      })
+      // Reload data to ensure consistency
+      if (currentBoard) {
+        const board = await api.getBoardById(currentBoard.id)
+        setCurrentBoard(board)
+        setBoards(boards.map(b => 
+          b.id === currentBoard.id ? board : b
+        ))
+      }
+    }
+  }
+
+  const addTask = async (columnId: string, task: Task) => {
+    if (!currentBoard) return
+    
+    try {
+      const createdTask = await api.createTask(columnId, task)
+      const newColumns = currentBoard.columns.map((column) => {
+        if (column.id === columnId) {
+          return {
+            ...column,
+            tasks: [...column.tasks, createdTask],
+          }
+        }
+        return column
+      })
+      const updatedBoard = { ...currentBoard, columns: newColumns }
+      setCurrentBoard(updatedBoard)
+      setBoards(boards.map(board => 
+        board.id === currentBoard.id ? updatedBoard : board
+      ))
+      toast({
+        title: "Task created",
+        description: `"${createdTask.title}" added to ${currentBoard.columns.find((col) => col.id === columnId)?.title}`,
+      })
+    } catch (error) {
+      console.error('Error creating task:', error)
+      toast({
+        title: "Error",
+        description: "Failed to create task. Please try again.",
+        variant: "destructive",
       })
     }
   }
 
-  const addColumn = () => {
+  const updateTask = async (updatedTask: Task) => {
+    if (!currentBoard) return
+    
+    try {
+      const updated = await api.updateTask(updatedTask.id, updatedTask)
+      const newColumns = currentBoard.columns.map((column) => {
+        return {
+          ...column,
+          tasks: column.tasks.map((task) => (task.id === updated.id ? updated : task)),
+        }
+      })
+      const updatedBoard = { ...currentBoard, columns: newColumns }
+      setCurrentBoard(updatedBoard)
+      setBoards(boards.map(board => 
+        board.id === currentBoard.id ? updatedBoard : board
+      ))
+      setSelectedTask(updated)
+      toast({
+        title: "Task updated",
+        description: `"${updated.title}" has been updated`,
+      })
+    } catch (error) {
+      console.error('Error updating task:', error)
+      toast({
+        title: "Error",
+        description: "Failed to update task. Please try again.",
+        variant: "destructive",
+      })
+    }
+  }
+
+  const deleteTask = async (taskId: string) => {
+    if (!currentBoard) return
+    
+    try {
+      await api.deleteTask(taskId)
+      const newColumns = currentBoard.columns.map((column) => {
+        return {
+          ...column,
+          tasks: column.tasks.filter((task) => task.id !== taskId),
+        }
+      })
+      const updatedBoard = { ...currentBoard, columns: newColumns }
+      setCurrentBoard(updatedBoard)
+      setBoards(boards.map(board => 
+        board.id === currentBoard.id ? updatedBoard : board
+      ))
+      setSelectedTask(null)
+      toast({
+        title: "Task deleted",
+        description: "The task has been deleted",
+      })
+    } catch (error) {
+      console.error('Error deleting task:', error)
+      toast({
+        title: "Error",
+        description: "Failed to delete task. Please try again.",
+        variant: "destructive",
+      })
+    }
+  }
+
+  const duplicateTask = async (task: Task, columnId?: string) => {
+    if (!currentBoard) return
+    
+    try {
+      const targetColumnId = columnId || currentBoard.columns.find((col) => col.tasks.some((t) => t.id === task.id))?.id
+      
+      if (targetColumnId) {
+        const duplicatedTask = await api.duplicateTask(task.id, targetColumnId)
+        const newColumns = currentBoard.columns.map((column) => {
+          if (column.id === targetColumnId) {
+            return {
+              ...column,
+              tasks: [...column.tasks, duplicatedTask],
+            }
+          }
+          return column
+        })
+        const updatedBoard = { ...currentBoard, columns: newColumns }
+        setCurrentBoard(updatedBoard)
+        setBoards(boards.map(board => 
+          board.id === currentBoard.id ? updatedBoard : board
+        ))
+        toast({
+          title: "Task duplicated",
+          description: `"${duplicatedTask.title}" created`,
+        })
+      }
+    } catch (error) {
+      console.error('Error duplicating task:', error)
+      toast({
+        title: "Error",
+        description: "Failed to duplicate task. Please try again.",
+        variant: "destructive",
+      })
+    }
+  }
+
+  const addColumn = async () => {
     if (!newColumnTitle.trim()) {
       toast({
         title: "Error",
@@ -509,29 +488,67 @@ export default function KanbanBoard() {
       return
     }
 
-    const newColumn: ColumnType = {
-      id: `column-${generateId()}`,
-      title: newColumnTitle,
-      tasks: [],
+    if (!currentBoard) {
+      toast({
+        title: "Error",
+        description: "No board selected",
+        variant: "destructive",
+      })
+      return
     }
 
-    setColumns([...columns, newColumn])
-    setNewColumnTitle("")
-    setIsAddingColumn(false)
-    toast({
-      title: "Column added",
-      description: `"${newColumnTitle}" column has been added`,
-    })
+    try {
+      const newColumn = await api.createColumn(currentBoard.id, newColumnTitle)
+      const updatedBoard = { 
+        ...currentBoard, 
+        columns: [...currentBoard.columns, newColumn] 
+      }
+      setCurrentBoard(updatedBoard)
+      setBoards(boards.map(board => 
+        board.id === currentBoard.id ? updatedBoard : board
+      ))
+      setNewColumnTitle("")
+      setIsAddingColumn(false)
+      toast({
+        title: "Column added",
+        description: `"${newColumnTitle}" column has been added`,
+      })
+    } catch (error) {
+      console.error('Error creating column:', error)
+      toast({
+        title: "Error",
+        description: "Failed to create column. Please try again.",
+        variant: "destructive",
+      })
+    }
   }
 
-  const updateColumn = (columnId: string, updates: Partial<ColumnType>) => {
-    const newColumns = columns.map((column) => (column.id === columnId ? { ...column, ...updates } : column))
-    setColumns(newColumns)
+  const updateColumn = async (columnId: string, updates: Partial<ColumnType>) => {
+    if (!currentBoard) return
+    
+    try {
+      const updatedColumn = await api.updateColumn(currentBoard.id, columnId, updates)
+      const newColumns = currentBoard.columns.map((column) => (column.id === columnId ? updatedColumn : column))
+      const updatedBoard = { ...currentBoard, columns: newColumns }
+      setCurrentBoard(updatedBoard)
+      setBoards(boards.map(board => 
+        board.id === currentBoard.id ? updatedBoard : board
+      ))
+    } catch (error) {
+      console.error('Error updating column:', error)
+      toast({
+        title: "Error",
+        description: "Failed to update column. Please try again.",
+        variant: "destructive",
+      })
+    }
   }
 
-  const deleteColumn = (columnId: string) => {
+  const deleteColumn = async (columnId: string) => {
+    if (!currentBoard) return
+    
     // Check if column has tasks
-    const column = columns.find((col) => col.id === columnId)
+    const column = currentBoard.columns.find((col) => col.id === columnId)
     if (column && column.tasks.length > 0) {
       toast({
         title: "Cannot delete column",
@@ -541,32 +558,77 @@ export default function KanbanBoard() {
       return
     }
 
-    setColumns(columns.filter((col) => col.id !== columnId))
-    toast({
-      title: "Column deleted",
-      description: `"${column?.title}" column has been deleted`,
-    })
+    try {
+      await api.deleteColumn(currentBoard.id, columnId)
+      const newColumns = currentBoard.columns.filter((col) => col.id !== columnId)
+      const updatedBoard = { ...currentBoard, columns: newColumns }
+      setCurrentBoard(updatedBoard)
+      setBoards(boards.map(board => 
+        board.id === currentBoard.id ? updatedBoard : board
+      ))
+      toast({
+        title: "Column deleted",
+        description: `"${column?.title}" column has been deleted`,
+      })
+    } catch (error) {
+      console.error('Error deleting column:', error)
+      toast({
+        title: "Error",
+        description: "Failed to delete column. Please try again.",
+        variant: "destructive",
+      })
+    }
   }
 
-  const addRule = (rule: Rule) => {
-    setRules([...rules, rule])
-    toast({
-      title: "Rule created",
-      description: `"${rule.name}" has been added`,
-    })
+  const addRule = async (rule: Rule) => {
+    try {
+      const createdRule = await api.createRule(rule)
+      setRules([...rules, createdRule])
+      toast({
+        title: "Rule created",
+        description: `"${createdRule.name}" has been added`,
+      })
+    } catch (error) {
+      console.error('Error creating rule:', error)
+      toast({
+        title: "Error",
+        description: "Failed to create rule. Please try again.",
+        variant: "destructive",
+      })
+    }
   }
 
-  const updateRule = (ruleId: string, updates: Partial<Rule>) => {
-    const newRules = rules.map((rule) => (rule.id === ruleId ? { ...rule, ...updates } : rule))
-    setRules(newRules)
+  const updateRule = async (ruleId: string, updates: Partial<Rule>) => {
+    try {
+      const updatedRule = await api.updateRule(ruleId, updates)
+      const newRules = rules.map((rule) => (rule.id === ruleId ? updatedRule : rule))
+      setRules(newRules)
+    } catch (error) {
+      console.error('Error updating rule:', error)
+      toast({
+        title: "Error",
+        description: "Failed to update rule. Please try again.",
+        variant: "destructive",
+      })
+    }
   }
 
-  const deleteRule = (ruleId: string) => {
-    setRules(rules.filter((rule) => rule.id !== ruleId))
-    toast({
-      title: "Rule deleted",
-      description: "The automation rule has been deleted",
-    })
+  const deleteRule = async (ruleId: string) => {
+    try {
+      await api.deleteRule(ruleId)
+      setRules(rules.filter((rule) => rule.id !== ruleId))
+      toast({
+        title: "Rule deleted",
+        description: "The automation rule has been deleted",
+      })
+    } catch (error) {
+      console.error('Error deleting rule:', error)
+      toast({
+        title: "Error",
+        description: "Failed to delete rule. Please try again.",
+        variant: "destructive",
+      })
+    }
   }
 
   // Board content for the "board" tab
@@ -639,40 +701,88 @@ export default function KanbanBoard() {
     </div>
   )
 
-  return (
-    <div className="flex flex-col h-screen bg-gray-800">
-      <header className="bg-gray-800 border-b border-gray-700 p-4 shadow-sm">
-        <div className="flex justify-between items-center mb-4">
-          <Logo />
-          <ThemeToggle />
+  if (loading) {
+    return (
+      <div className="flex flex-col h-screen bg-gray-800">
+        <header className="bg-gray-800 border-b border-gray-700 p-4 shadow-sm">
+          <div className="flex justify-between items-center mb-4">
+            <Logo />
+            <ThemeToggle />
+          </div>
+        </header>
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-white text-lg">Loading...</div>
         </div>
+      </div>
+    )
+  }
 
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full max-w-md grid-cols-2 bg-gray-700">
-            <TabsTrigger value="board">Board</TabsTrigger>
-            <TabsTrigger value="automation">Automation</TabsTrigger>
-          </TabsList>
+  return (
+    <div className="flex h-screen bg-gray-800 relative">
+      {/* Board Sidebar */}
+      <BoardSidebar
+        boards={boards}
+        currentBoardId={currentBoardId}
+        isOpen={sidebarOpen}
+        onToggle={() => setSidebarOpen(!sidebarOpen)}
+        onBoardSelect={handleBoardSelect}
+        onCreateBoard={handleCreateBoard}
+        onRenameBoard={handleRenameBoard}
+        onDeleteBoard={handleDeleteBoard}
+      />
+      
+      {/* Main Content */}
+      <div className={cn(
+        "flex flex-col flex-1 transition-all duration-300 ease-in-out",
+        sidebarOpen ? "md:ml-64" : "ml-0"
+      )}>
+        <header className="bg-gray-800 border-b border-gray-700 p-4 shadow-sm">
+          <div className="flex justify-between items-center mb-4">
+            <div className="flex items-center space-x-4">
+              <Logo />
+              {currentBoard && (
+                <h1 className="text-xl font-semibold text-white">
+                  {currentBoard.name}
+                </h1>
+              )}
+            </div>
+            <ThemeToggle />
+          </div>
 
-          <TabsContent value="board" className="mt-4">
-            {renderBoardContent()}
-          </TabsContent>
+          <Tabs value={activeTab} onValueChange={setActiveTab}>
+            <TabsList className="grid w-full max-w-md grid-cols-2 bg-gray-700">
+              <TabsTrigger value="board">Board</TabsTrigger>
+              <TabsTrigger value="automation">Automation</TabsTrigger>
+            </TabsList>
 
-          <TabsContent value="automation" className="mt-4">
-            {renderAutomationContent()}
-          </TabsContent>
-        </Tabs>
-      </header>
+            <TabsContent value="board" className="mt-4">
+              {currentBoard ? renderBoardContent() : (
+                <div className="flex items-center justify-center h-64">
+                  <div className="text-center text-gray-400">
+                    <p className="text-lg mb-2">No board selected</p>
+                    <p className="text-sm">Create a new board or select an existing one from the sidebar</p>
+                  </div>
+                </div>
+              )}
+            </TabsContent>
 
-      {selectedTask && (
-        <TaskDetailSidebar
-          task={selectedTask}
-          onClose={() => setSelectedTask(null)}
-          onUpdate={updateTask}
-          onDelete={deleteTask}
-          onDuplicate={duplicateTask}
-          columns={columns}
-        />
-      )}
+            <TabsContent value="automation" className="mt-4">
+              {renderAutomationContent()}
+            </TabsContent>
+          </Tabs>
+        </header>
+
+        {selectedTask && (
+          <TaskDetailSidebar
+            task={selectedTask}
+            onClose={() => setSelectedTask(null)}
+            onUpdate={updateTask}
+            onDelete={deleteTask}
+            onDuplicate={duplicateTask}
+            columns={columns}
+          />
+        )}
+      </div>
     </div>
   )
 }
